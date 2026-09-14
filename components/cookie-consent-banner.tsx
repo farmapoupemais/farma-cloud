@@ -1,6 +1,6 @@
 "use client";
 
-import { useSyncExternalStore, useState } from "react";
+import { useSyncExternalStore, useState, useEffect } from "react";
 import Link from "next/link";
 import {
   Shield,
@@ -56,7 +56,13 @@ function getServerSnapshot(): string {
 }
 
 export function CookieConsentBanner() {
+  const [mounted, setMounted] = useState(false);
   const rawConsent = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
 
   const [showModal, setShowModal] = useState(false);
   const [customGeo, setCustomGeo] = useState(true);
@@ -64,8 +70,8 @@ export function CookieConsentBanner() {
   const [customTelemetry, setCustomTelemetry] = useState(false);
   const [customComm, setCustomComm] = useState(true);
 
-  // Servidor não renderiza para evitar mismatch de hidratação
-  if (rawConsent === "__server__") return null;
+  // Evita hydration mismatch (#418): no servidor e no primeiro ciclo de hidratação cliente retorna null
+  if (!mounted) return null;
 
   const hasDecided = rawConsent !== "__unset__";
   const showBanner = !hasDecided;

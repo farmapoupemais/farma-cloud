@@ -73,8 +73,18 @@ const POPULAR_SEARCHES = [
 ];
 
 export function SiteHeader() {
+  const [mounted, setMounted] = useState(false);
   const cartCount = useSyncExternalStore(subscribeCart, getCartSnapshot, getCartServerSnapshot);
   const currentCep = useSyncExternalStore(subscribeCep, getCepSnapshot, getCepServerSnapshot);
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setMounted(true);
+  }, []);
+
+  const displayCartCount = mounted ? cartCount : 0;
+  const displayCep = mounted ? currentCep : "90010-000";
+
   const [searchTerm, setSearchTerm] = useState("");
   const [searchFocused, setSearchFocused] = useState(false);
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
@@ -307,13 +317,13 @@ export function SiteHeader() {
             <Link
               href="/carrinho"
               className="flex items-center gap-2 text-gray-700 hover:text-[#005a34] transition-colors relative"
-              aria-label={`Minha Cesta com ${cartCount} itens`}
+              aria-label={`Minha Cesta com ${displayCartCount} itens`}
             >
               <div className="w-9 h-9 rounded-full bg-[#e6f4ed] text-[#00874e] flex items-center justify-center relative">
                 <ShoppingBasket size={20} />
-                {cartCount > 0 && (
+                {displayCartCount > 0 && (
                   <span className="absolute -top-1 -right-1 bg-red-600 text-white text-[10px] font-black rounded-full h-5 w-5 flex items-center justify-center ring-2 ring-white">
-                    {cartCount}
+                    {displayCartCount}
                   </span>
                 )}
               </div>
@@ -348,7 +358,7 @@ export function SiteHeader() {
               >
                 <MapPin size={15} className="text-[#00874e]" />
                 <span className="hidden sm:inline">Entregar em:</span>
-                <span className="font-bold underline text-[#005a34]">{currentCep}</span>
+                <span className="font-bold underline text-[#005a34]">{displayCep}</span>
               </button>
 
               <span className="text-gray-300 mx-1 hidden sm:inline">|</span>
@@ -756,7 +766,7 @@ export function SiteHeader() {
         </Link>
         <Link href="/carrinho" className="mobile-cart relative">
           <ShoppingBasket size={20} />
-          {cartCount > 0 && <b>{cartCount}</b>}
+          {displayCartCount > 0 && <b>{displayCartCount}</b>}
           <span>Cesta</span>
         </Link>
       </nav>
